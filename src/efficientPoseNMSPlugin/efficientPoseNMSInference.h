@@ -26,7 +26,7 @@ size_t EfficientPoseNMSWorkspaceSize(
     int32_t batchSize, int32_t numScoreElements, int32_t numClasses, nvinfer1::DataType datatype);
 
 pluginStatus_t EfficientPoseNMSInference(nvinfer1::plugin::EfficientPoseNMSParameters param, void const* boxesInput,
-    void const* scoresInput, void const* anchorsInput, void* numDetectionsOutput, void* nmsBoxesOutput,
+    void const* scoresInput, void const* anchorsInput, void* numDetectionsOutput, void* nmsBoxesOutput, void* nmsKptsOutput,
     void* nmsScoresOutput, void* nmsClassesOutput, void* nmsIndicesOutput, void* workspace, cudaStream_t stream);
 
 #endif

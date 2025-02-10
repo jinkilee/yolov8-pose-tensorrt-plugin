@@ -630,7 +630,7 @@ T* EfficientPoseNMSWorkspace(void* workspace, size_t& offset, size_t elements)
 
 template <typename T>
 pluginStatus_t EfficientPoseNMSDispatch(EfficientPoseNMSParameters param, const void* boxesInput, const void* scoresInput,
-    const void* anchorsInput, void* numDetectionsOutput, void* nmsBoxesOutput, void* nmsScoresOutput,
+    const void* anchorsInput, void* numDetectionsOutput, void* nmsBoxesOutput, void* nmsKptsOutput, void* nmsScoresOutput,
     void* nmsClassesOutput, void* nmsIndicesOutput, void* workspace, cudaStream_t stream)
 {
     // Clear Outputs (not all elements will get overwritten by the kernels, so safer to clear everything out)
@@ -643,6 +643,7 @@ pluginStatus_t EfficientPoseNMSDispatch(EfficientPoseNMSParameters param, const 
         CSC(cudaMemsetAsync(numDetectionsOutput, 0x00, param.batchSize * sizeof(int), stream), STATUS_FAILURE);
         CSC(cudaMemsetAsync(nmsScoresOutput, 0x00, param.batchSize * param.numOutputBoxes * sizeof(T), stream), STATUS_FAILURE);
         CSC(cudaMemsetAsync(nmsBoxesOutput, 0x00, param.batchSize * param.numOutputBoxes * 4 * sizeof(T), stream), STATUS_FAILURE);
+        CSC(cudaMemsetAsync(nmsKptsOutput, 0x00, param.batchSize * param.numOutputBoxes * 3 * sizeof(T), stream), STATUS_FAILURE);
         CSC(cudaMemsetAsync(nmsClassesOutput, 0x00, param.batchSize * param.numOutputBoxes * sizeof(int), stream), STATUS_FAILURE);
     }
 
@@ -700,14 +701,14 @@ pluginStatus_t EfficientPoseNMSDispatch(EfficientPoseNMSParameters param, const 
 }
 
 pluginStatus_t EfficientPoseNMSInference(EfficientPoseNMSParameters param, const void* boxesInput, const void* scoresInput,
-    const void* anchorsInput, void* numDetectionsOutput, void* nmsBoxesOutput, void* nmsScoresOutput,
+    const void* anchorsInput, void* numDetectionsOutput, void* nmsBoxesOutput, void* nmsKptsOutput, void* nmsScoresOutput,
     void* nmsClassesOutput, void* nmsIndicesOutput, void* workspace, cudaStream_t stream)
 {
     if (param.datatype == DataType::kFLOAT)
     {
         param.scoreBits = -1;
         return EfficientPoseNMSDispatch<float>(param, boxesInput, scoresInput, anchorsInput, numDetectionsOutput,
-            nmsBoxesOutput, nmsScoresOutput, nmsClassesOutput, nmsIndicesOutput, workspace, stream);
+            nmsBoxesOutput, nmsKptsOutput, nmsScoresOutput, nmsClassesOutput, nmsIndicesOutput, workspace, stream);
     }
     else if (param.datatype == DataType::kHALF)
     {
@@ -716,7 +717,7 @@ pluginStatus_t EfficientPoseNMSInference(EfficientPoseNMSParameters param, const
             param.scoreBits = -1;
         }
         return EfficientPoseNMSDispatch<__half>(param, boxesInput, scoresInput, anchorsInput, numDetectionsOutput,
-            nmsBoxesOutput, nmsScoresOutput, nmsClassesOutput, nmsIndicesOutput, workspace, stream);
+            nmsBoxesOutput, nmsKptsOutput, nmsScoresOutput, nmsClassesOutput, nmsIndicesOutput, workspace, stream);
     }
     else
     {

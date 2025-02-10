@@ -176,10 +176,11 @@ int32_t EfficientPoseNMSImplicitTFTRTPlugin::enqueue(int32_t batchSize, void con
 
         void* numDetectionsOutput = outputs[0];
         void* nmsBoxesOutput = outputs[1];
-        void* nmsScoresOutput = outputs[2];
-        void* nmsClassesOutput = outputs[3];
+        void* nmsKptsOutput = outputs[2];
+        void* nmsScoresOutput = outputs[3];
+        void* nmsClassesOutput = outputs[4];
 
-        return EfficientPoseNMSInference(mParam, boxesInput, scoresInput, anchorsInput, numDetectionsOutput, nmsBoxesOutput,
+        return EfficientPoseNMSInference(mParam, boxesInput, scoresInput, anchorsInput, numDetectionsOutput, nmsBoxesOutput, nmsKptsOutput,
             nmsScoresOutput, nmsClassesOutput, nullptr, workspace, stream);
     }
     catch (const std::exception& e)
